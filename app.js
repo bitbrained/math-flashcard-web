@@ -9,6 +9,20 @@ const newCardBtn = document.getElementById("newCard");
 const friendlyEmojis = ["🧸", "🚂", "🐣", "🦄", "🌈", "🍎", "🦋", "🎈"];
 const praise = ["Great job!", "Awesome!", "You did it!", "Super!", "Nice work!"];
 const tryAgain = ["Try again!", "Almost!", "You can do it!", "Give it another tap!"];
+const correctVoiceLines = ["Great job!", "Awesome work!", "You got it!", "Super star!"];
+const incorrectVoiceLines = ["Try again!", "Almost there!", "Keep trying!", "One more time!"];
+
+const correctTonePatterns = [
+  [523.25, 659.25, 783.99],
+  [587.33, 739.99, 880.0],
+  [659.25, 783.99, 987.77],
+];
+
+const incorrectTonePatterns = [
+  [329.63, 277.18],
+  [392.0, 311.13],
+  [349.23, 261.63],
+];
 
 const state = {
   a: 1,
@@ -19,6 +33,8 @@ const state = {
   best: Number(localStorage.getItem("bestStreak") || 0),
   locked: false,
 };
+
+let audioCtx;
 
 bestEl.textContent = String(state.best);
 
@@ -92,6 +108,49 @@ function speak(text) {
   window.speechSynthesis.speak(utter);
 }
 
+function getAudioContext() {
+  if (!("AudioContext" in window || "webkitAudioContext" in window)) return null;
+  if (!audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new Ctx();
+  }
+  return audioCtx;
+}
+
+function playToneSequence(type) {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  if (ctx.state === "suspended") {
+    ctx.resume().catch(() => {});
+  }
+
+  const pattern = pick(type === "good" ? correctTonePatterns : incorrectTonePatterns);
+  const now = ctx.currentTime;
+  const noteDuration = type === "good" ? 0.14 : 0.18;
+  const waveType = type === "good" ? "triangle" : "sine";
+
+  pattern.forEach((freq, i) => {
+    const start = now + i * (noteDuration + 0.02);
+    const end = start + noteDuration;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = waveType;
+    osc.frequency.setValueAtTime(freq, start);
+
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.17, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, end);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(end + 0.01);
+  });
+}
+
 function updateStats() {
   streakEl.textContent = String(state.streak);
   bestEl.textContent = String(state.best);
@@ -107,17 +166,21 @@ function onAnswer(button, value) {
     localStorage.setItem("bestStreak", String(state.best));
     updateStats();
     button.classList.add("good");
-    feedbackEl.textContent = pick(praise);
+    const feedbackText = pick(praise);
+    feedbackEl.textContent = feedbackText;
     feedbackEl.className = "feedback good";
-    speak("Great job");
+    playToneSequence("good");
+    speak(pick(correctVoiceLines));
     setTimeout(makeQuestion, 700);
   } else {
     button.classList.add("bad");
     state.streak = 0;
     updateStats();
-    feedbackEl.textContent = pick(tryAgain);
+    const feedbackText = pick(tryAgain);
+    feedbackEl.textContent = feedbackText;
     feedbackEl.className = "feedback bad";
-    speak("Try again");
+    playToneSequence("bad");
+    speak(pick(incorrectVoiceLines));
   }
 }
 
