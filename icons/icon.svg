@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff0b3"/>
+      <stop offset="100%" stop-color="#8fe8ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="90" fill="url(#bg)"/>
+  <circle cx="256" cy="210" r="95" fill="#ffffff"/>
+  <text x="256" y="240" text-anchor="middle" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="120" font-weight="800" fill="#ff8a5b">2</text>
+  <text x="256" y="340" text-anchor="middle" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="80" font-weight="700" fill="#213547">+1</text>
+</svg>

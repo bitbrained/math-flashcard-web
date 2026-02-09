@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffcc70" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Math Fun Cards" />
+    <title>Math Fun Cards</title>
+
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app" aria-live="polite">
+      <header class="top">
+        <h1>Math Fun Cards</h1>
+        <p class="subtitle">Tap the right answer!</p>
+      </header>
+
+      <section class="card" aria-label="Flashcard">
+        <p id="emoji" class="emoji" aria-hidden="true">🧸</p>
+        <p id="question" class="question">1 + 1 = ?</p>
+        <div id="answers" class="answers" role="group" aria-label="Answer choices"></div>
+      </section>
+
+      <section class="feedback-wrap">
+        <p id="feedback" class="feedback">Let’s play!</p>
+      </section>
+
+      <footer class="bottom">
+        <div class="stats">
+          <span>⭐ Streak: <strong id="streak">0</strong></span>
+          <span>🏆 Best: <strong id="best">0</strong></span>
+        </div>
+        <button id="newCard" class="btn" type="button">Next Card</button>
+      </footer>
+    </main>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

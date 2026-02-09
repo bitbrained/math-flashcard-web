@@ -1,0 +1,149 @@
+:root {
+  --bg-top: #fff6d8;
+  --bg-bottom: #c7f5ff;
+  --card: #ffffff;
+  --ink: #213547;
+  --accent: #ff8a5b;
+  --good: #1f9d55;
+  --bad: #d94848;
+  --soft-shadow: 0 8px 24px rgba(33, 53, 71, 0.12);
+  --round: 24px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: "Avenir Next", "Trebuchet MS", "Comic Sans MS", sans-serif;
+  color: var(--ink);
+  background: linear-gradient(165deg, var(--bg-top), var(--bg-bottom));
+}
+
+body {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+}
+
+.app {
+  width: min(680px, 100%);
+  display: grid;
+  gap: 14px;
+}
+
+.top {
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.9rem, 5vw, 2.5rem);
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  font-size: 1rem;
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--round);
+  box-shadow: var(--soft-shadow);
+  padding: 20px;
+  text-align: center;
+}
+
+.emoji {
+  font-size: clamp(2.4rem, 8vw, 3.8rem);
+  margin: 0 0 10px;
+}
+
+.question {
+  margin: 0 0 18px;
+  font-size: clamp(2rem, 8vw, 3.4rem);
+  font-weight: 800;
+}
+
+.answers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.answer-btn,
+.btn {
+  border: 0;
+  border-radius: 16px;
+  min-height: 62px;
+  font-size: clamp(1.5rem, 5.5vw, 2rem);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.answer-btn {
+  background: #fff5e8;
+  color: var(--ink);
+}
+
+.answer-btn:active,
+.btn:active {
+  transform: scale(0.98);
+}
+
+.answer-btn.good {
+  background: #d7f8df;
+}
+
+.answer-btn.bad {
+  background: #ffe3e3;
+}
+
+.feedback-wrap {
+  min-height: 34px;
+  text-align: center;
+}
+
+.feedback {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.feedback.good {
+  color: var(--good);
+}
+
+.feedback.bad {
+  color: var(--bad);
+}
+
+.bottom {
+  display: grid;
+  gap: 12px;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.btn {
+  background: var(--accent);
+  color: white;
+  box-shadow: var(--soft-shadow);
+}
+
+@media (max-width: 440px) {
+  .answers {
+    grid-template-columns: 1fr 1fr;
+  }
+}
