@@ -37,6 +37,8 @@ body {
 }
 
 .top {
+  position: relative;
+  z-index: 20;
   text-align: center;
 }
 
@@ -97,7 +99,7 @@ h1 {
   display: grid;
   gap: 8px;
   text-align: left;
-  z-index: 10;
+  z-index: 100;
 }
 
 .settings-menu[hidden] {
@@ -144,11 +146,72 @@ h1 {
 }
 
 .card {
+  position: relative;
+  z-index: 1;
   background: var(--card);
   border-radius: var(--round);
   box-shadow: var(--soft-shadow);
   padding: 20px;
   text-align: center;
+  transform-origin: 12% 88%;
+}
+
+.card::before,
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--round);
+  background: #ffffff;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.card::before {
+  transform: translate(8px, 8px) scale(0.992);
+  opacity: 0.65;
+}
+
+.card::after {
+  transform: translate(14px, 14px) scale(0.986);
+  opacity: 0.4;
+}
+
+.card-exit {
+  animation: card-exit 280ms cubic-bezier(0.34, 0.96, 0.58, 1) both;
+}
+
+.card-enter {
+  animation: card-enter 280ms cubic-bezier(0.2, 0.85, 0.35, 1) both;
+}
+
+@keyframes card-exit {
+  from {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(52px, -24px) rotate(9deg) scale(0.96);
+  }
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translate(-14px, 8px) rotate(-3deg) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-exit,
+  .card-enter {
+    animation: none;
+  }
 }
 
 .emoji {

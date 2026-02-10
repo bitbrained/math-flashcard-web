@@ -4,6 +4,7 @@ const feedbackEl = document.getElementById("feedback");
 const streakEl = document.getElementById("streak");
 const bestEl = document.getElementById("best");
 const emojiEl = document.getElementById("emoji");
+const cardEl = document.querySelector(".card");
 const newCardBtn = document.getElementById("newCard");
 const settingsWrapEl = document.getElementById("settingsWrap");
 const settingsBtnEl = document.getElementById("settingsBtn");
@@ -32,6 +33,7 @@ const incorrectTonePatterns = [
 ];
 
 const BACKGROUND_MUSIC_SRC = "./audio/counting-cloud-breeze.mp3";
+const CARD_TRANSITION_MS = 280;
 
 const state = {
   a: 1,
@@ -49,6 +51,7 @@ const state = {
 let audioCtx;
 let musicStarted = false;
 let backgroundMusicEl;
+let cardTransitionInProgress = false;
 
 bestEl.textContent = String(state.best);
 if (![10, 20, 50].includes(state.maxNumber)) {
@@ -132,6 +135,33 @@ function makeQuestion() {
   feedbackEl.className = "feedback";
 
   renderChoices(answer);
+}
+
+function showNextCard() {
+  if (!cardEl) {
+    makeQuestion();
+    return;
+  }
+  if (cardTransitionInProgress) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    makeQuestion();
+    return;
+  }
+
+  cardTransitionInProgress = true;
+  cardEl.classList.remove("card-enter");
+  cardEl.classList.add("card-exit");
+
+  window.setTimeout(() => {
+    makeQuestion();
+    cardEl.classList.remove("card-exit");
+    cardEl.classList.add("card-enter");
+
+    window.setTimeout(() => {
+      cardEl.classList.remove("card-enter");
+      cardTransitionInProgress = false;
+    }, CARD_TRANSITION_MS);
+  }, CARD_TRANSITION_MS);
 }
 
 function renderChoices(correct) {
@@ -231,7 +261,7 @@ function onAnswer(button, value) {
     feedbackEl.className = "feedback good";
     playToneSequence("good");
     speak(pick(correctVoiceLines));
-    setTimeout(makeQuestion, 700);
+    setTimeout(showNextCard, 700);
   } else {
     button.classList.add("bad");
     state.streak = 0;
@@ -246,7 +276,7 @@ function onAnswer(button, value) {
 
 newCardBtn.addEventListener("click", () => {
   startBackgroundMusic();
-  makeQuestion();
+  showNextCard();
 });
 
 settingsBtnEl.addEventListener("click", () => {
@@ -262,7 +292,7 @@ rangeSelectEl.addEventListener("change", () => {
   if (![10, 20, 50].includes(nextMax)) return;
   state.maxNumber = nextMax;
   localStorage.setItem("maxNumber", String(state.maxNumber));
-  makeQuestion();
+  showNextCard();
 });
 
 soundToggleEl.addEventListener("change", () => {
