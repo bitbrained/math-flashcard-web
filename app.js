@@ -88,7 +88,7 @@ function getBackgroundMusic() {
   if (!backgroundMusicEl) {
     backgroundMusicEl = new Audio(BACKGROUND_MUSIC_SRC);
     backgroundMusicEl.loop = true;
-    backgroundMusicEl.volume = 0.35;
+    backgroundMusicEl.volume = 0.175;
     backgroundMusicEl.preload = "auto";
   }
   return backgroundMusicEl;
