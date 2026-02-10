@@ -17,7 +17,44 @@
   <body>
     <main class="app" aria-live="polite">
       <header class="top">
-        <h1>Math Fun Cards</h1>
+        <div class="header-row">
+          <h1>Math Fun Cards</h1>
+          <div class="settings" id="settingsWrap">
+            <button
+              id="settingsBtn"
+              class="settings-btn"
+              type="button"
+              aria-label="Open settings"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              aria-controls="settingsMenu"
+            >
+              <span class="settings-gear" aria-hidden="true">&#9881;</span>
+              <span>Settings</span>
+            </button>
+            <div id="settingsMenu" class="settings-menu" role="menu" hidden>
+              <label class="menu-item menu-item-select" for="rangeSelect">
+                Number Range
+                <select id="rangeSelect" class="menu-select">
+                  <option value="10">0 to 10</option>
+                  <option value="20">0 to 20</option>
+                  <option value="50">0 to 50</option>
+                </select>
+              </label>
+              <label class="menu-item" for="soundToggle">
+                <input id="soundToggle" type="checkbox" checked />
+                Sound Effects
+              </label>
+              <label class="menu-item" for="voiceToggle">
+                <input id="voiceToggle" type="checkbox" checked />
+                Voice Feedback
+              </label>
+              <button id="resetBestBtn" class="menu-button" type="button" role="menuitem">
+                Reset Best Streak
+              </button>
+            </div>
+          </div>
+        </div>
         <p class="subtitle">Tap the right answer!</p>
       </header>
 

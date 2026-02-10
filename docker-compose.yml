@@ -5,3 +5,27 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
+    develop:
+      watch:
+        - action: sync
+          path: ./index.html
+          target: /usr/share/nginx/html/index.html
+        - action: sync
+          path: ./styles.css
+          target: /usr/share/nginx/html/styles.css
+        - action: sync
+          path: ./app.js
+          target: /usr/share/nginx/html/app.js
+        - action: sync
+          path: ./manifest.webmanifest
+          target: /usr/share/nginx/html/manifest.webmanifest
+        - action: sync
+          path: ./sw.js
+          target: /usr/share/nginx/html/sw.js
+        - action: sync
+          path: ./icons
+          target: /usr/share/nginx/html/icons
+        - action: rebuild
+          path: ./Dockerfile
+        - action: rebuild
+          path: ./docker-compose.yml
