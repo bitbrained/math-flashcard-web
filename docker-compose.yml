@@ -4,28 +4,11 @@ services:
     container_name: math-flashcard-web
     ports:
       - "8080:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./styles.css:/usr/share/nginx/html/styles.css:ro
+      - ./app.js:/usr/share/nginx/html/app.js:ro
+      - ./manifest.webmanifest:/usr/share/nginx/html/manifest.webmanifest:ro
+      - ./sw.js:/usr/share/nginx/html/sw.js:ro
+      - ./icons:/usr/share/nginx/html/icons:ro
     restart: unless-stopped
-    develop:
-      watch:
-        - action: sync
-          path: ./index.html
-          target: /usr/share/nginx/html/index.html
-        - action: sync
-          path: ./styles.css
-          target: /usr/share/nginx/html/styles.css
-        - action: sync
-          path: ./app.js
-          target: /usr/share/nginx/html/app.js
-        - action: sync
-          path: ./manifest.webmanifest
-          target: /usr/share/nginx/html/manifest.webmanifest
-        - action: sync
-          path: ./sw.js
-          target: /usr/share/nginx/html/sw.js
-        - action: sync
-          path: ./icons
-          target: /usr/share/nginx/html/icons
-        - action: rebuild
-          path: ./Dockerfile
-        - action: rebuild
-          path: ./docker-compose.yml
