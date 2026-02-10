@@ -40,6 +40,14 @@ body {
   text-align: center;
 }
 
+.header-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
 h1 {
   margin: 0;
   font-size: clamp(1.9rem, 5vw, 2.5rem);
@@ -48,6 +56,91 @@ h1 {
 .subtitle {
   margin: 6px 0 0;
   font-size: 1rem;
+}
+
+.settings {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.settings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--ink);
+  box-shadow: var(--soft-shadow);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.settings-gear {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.settings-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 190px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: var(--soft-shadow);
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+  z-index: 10;
+}
+
+.settings-menu[hidden] {
+  display: none;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.menu-item-select {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  cursor: default;
+}
+
+.menu-select {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 8px 10px;
+}
+
+.menu-button {
+  border: 0;
+  border-radius: 10px;
+  background: #fff5e8;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 10px;
+  cursor: pointer;
+  text-align: left;
 }
 
 .card {
@@ -145,5 +238,19 @@ h1 {
 @media (max-width: 440px) {
   .answers {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .settings {
+    position: static;
+    transform: none;
+  }
+
+  .header-row {
+    justify-content: space-between;
+  }
+
+  h1 {
+    text-align: left;
+    font-size: clamp(1.5rem, 7vw, 2rem);
   }
 }

@@ -5,6 +5,13 @@ const streakEl = document.getElementById("streak");
 const bestEl = document.getElementById("best");
 const emojiEl = document.getElementById("emoji");
 const newCardBtn = document.getElementById("newCard");
+const settingsWrapEl = document.getElementById("settingsWrap");
+const settingsBtnEl = document.getElementById("settingsBtn");
+const settingsMenuEl = document.getElementById("settingsMenu");
+const rangeSelectEl = document.getElementById("rangeSelect");
+const soundToggleEl = document.getElementById("soundToggle");
+const voiceToggleEl = document.getElementById("voiceToggle");
+const resetBestBtnEl = document.getElementById("resetBestBtn");
 
 const friendlyEmojis = ["🧸", "🚂", "🐣", "🦄", "🌈", "🍎", "🦋", "🎈"];
 const praise = ["Great job!", "Awesome!", "You did it!", "Super!", "Nice work!"];
@@ -75,6 +82,9 @@ const state = {
   answer: 2,
   streak: 0,
   best: Number(localStorage.getItem("bestStreak") || 0),
+  maxNumber: Number(localStorage.getItem("maxNumber") || 10),
+  soundEnabled: localStorage.getItem("soundEnabled") !== "false",
+  voiceEnabled: localStorage.getItem("voiceEnabled") !== "false",
   locked: false,
 };
 
@@ -85,6 +95,22 @@ let nextBeatAt = 0;
 let musicBeat = 0;
 
 bestEl.textContent = String(state.best);
+if (![10, 20, 50].includes(state.maxNumber)) {
+  state.maxNumber = 10;
+}
+rangeSelectEl.value = String(state.maxNumber);
+soundToggleEl.checked = state.soundEnabled;
+voiceToggleEl.checked = state.voiceEnabled;
+
+function closeSettingsMenu() {
+  settingsMenuEl.hidden = true;
+  settingsBtnEl.setAttribute("aria-expanded", "false");
+}
+
+function openSettingsMenu() {
+  settingsMenuEl.hidden = false;
+  settingsBtnEl.setAttribute("aria-expanded", "true");
+}
 
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -215,8 +241,8 @@ function startBackgroundMusic() {
 
 function makeQuestion() {
   const useAdd = Math.random() > 0.45;
-  let a = randInt(0, 10);
-  let b = randInt(0, 10);
+  let a = randInt(0, state.maxNumber);
+  let b = randInt(0, state.maxNumber);
   let op = "+";
   let answer = a + b;
 
@@ -267,6 +293,7 @@ function renderChoices(correct) {
 }
 
 function speak(text) {
+  if (!state.voiceEnabled) return;
   if (!("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
@@ -285,6 +312,7 @@ function getAudioContext() {
 }
 
 function playToneSequence(type) {
+  if (!state.soundEnabled) return;
   const ctx = getAudioContext();
   if (!ctx) return;
 
@@ -355,6 +383,56 @@ function onAnswer(button, value) {
 newCardBtn.addEventListener("click", () => {
   startBackgroundMusic();
   makeQuestion();
+});
+
+settingsBtnEl.addEventListener("click", () => {
+  if (settingsMenuEl.hidden) {
+    openSettingsMenu();
+  } else {
+    closeSettingsMenu();
+  }
+});
+
+rangeSelectEl.addEventListener("change", () => {
+  const nextMax = Number(rangeSelectEl.value);
+  if (![10, 20, 50].includes(nextMax)) return;
+  state.maxNumber = nextMax;
+  localStorage.setItem("maxNumber", String(state.maxNumber));
+  makeQuestion();
+});
+
+soundToggleEl.addEventListener("change", () => {
+  state.soundEnabled = soundToggleEl.checked;
+  localStorage.setItem("soundEnabled", String(state.soundEnabled));
+});
+
+voiceToggleEl.addEventListener("change", () => {
+  state.voiceEnabled = voiceToggleEl.checked;
+  localStorage.setItem("voiceEnabled", String(state.voiceEnabled));
+  if (!state.voiceEnabled && "speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+});
+
+resetBestBtnEl.addEventListener("click", () => {
+  state.best = 0;
+  localStorage.setItem("bestStreak", "0");
+  updateStats();
+  feedbackEl.textContent = "Best streak reset";
+  feedbackEl.className = "feedback";
+  closeSettingsMenu();
+});
+
+document.addEventListener("click", (event) => {
+  if (!settingsWrapEl.contains(event.target)) {
+    closeSettingsMenu();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeSettingsMenu();
+  }
 });
 
 if ("serviceWorker" in navigator) {

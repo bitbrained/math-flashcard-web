@@ -27,6 +27,13 @@ Then open:
 - `http://localhost:8080`
 - `http://<your-mac-lan-ip>:8080` from your iPhone on the same Wi-Fi network
 
+### Live reload-style workflow with Compose watch
+Run the app with file watching enabled:
+- `docker compose up --watch`
+
+This will sync edits to `index.html`, `styles.css`, `app.js`, `manifest.webmanifest`, `sw.js`, and `icons/` directly into the running container.
+Changes to `Dockerfile` or `docker-compose.yml` trigger a rebuild.
+
 Stop:
 - `docker compose down`
 
