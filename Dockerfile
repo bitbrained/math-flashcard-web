@@ -5,6 +5,7 @@ COPY styles.css /usr/share/nginx/html/styles.css
 COPY app.js /usr/share/nginx/html/app.js
 COPY manifest.webmanifest /usr/share/nginx/html/manifest.webmanifest
 COPY sw.js /usr/share/nginx/html/sw.js
+COPY audio /usr/share/nginx/html/audio
 COPY icons /usr/share/nginx/html/icons
 
 EXPOSE 80

@@ -10,5 +10,6 @@ services:
       - ./app.js:/usr/share/nginx/html/app.js:ro
       - ./manifest.webmanifest:/usr/share/nginx/html/manifest.webmanifest:ro
       - ./sw.js:/usr/share/nginx/html/sw.js:ro
+      - ./audio:/usr/share/nginx/html/audio:ro
       - ./icons:/usr/share/nginx/html/icons:ro
     restart: unless-stopped

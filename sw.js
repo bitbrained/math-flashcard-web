@@ -1,10 +1,11 @@
-const CACHE_NAME = "math-fun-cards-v1";
+const CACHE_NAME = "math-fun-cards-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
   "./manifest.webmanifest",
+  "./audio/counting-cloud-breeze.mp3",
   "./icons/icon-180.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
