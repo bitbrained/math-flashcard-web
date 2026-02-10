@@ -4,8 +4,16 @@ const feedbackEl = document.getElementById("feedback");
 const streakEl = document.getElementById("streak");
 const bestEl = document.getElementById("best");
 const emojiEl = document.getElementById("emoji");
+const subtitleEl = document.getElementById("subtitle");
+const startMenuEl = document.getElementById("startMenu");
+const startMessageEl = document.getElementById("startMessage");
+const modeButtons = document.querySelectorAll(".mode-btn");
+const gameAreaEl = document.getElementById("gameArea");
 const cardEl = document.querySelector(".card");
 const newCardBtn = document.getElementById("newCard");
+const quitToMenuBtn = document.getElementById("quitToMenu");
+const timerStatEl = document.getElementById("timerStat");
+const timerEl = document.getElementById("timer");
 const settingsWrapEl = document.getElementById("settingsWrap");
 const settingsBtnEl = document.getElementById("settingsBtn");
 const settingsMenuEl = document.getElementById("settingsMenu");
@@ -46,6 +54,10 @@ const state = {
   maxNumber: Number(localStorage.getItem("maxNumber") || 10),
   soundEnabled: localStorage.getItem("soundEnabled") !== "false",
   voiceEnabled: localStorage.getItem("voiceEnabled") !== "false",
+  mode: null,
+  timeRemaining: 0,
+  timeTrialCompletedCards: 0,
+  timeTrialBestStreak: 0,
   locked: false,
 };
 
@@ -58,6 +70,7 @@ let confettiParticles = [];
 let confettiRafId = 0;
 let confettiLastTs = 0;
 let resumeMusicOnForeground = false;
+let timeTrialTimerId = 0;
 
 bestEl.textContent = String(state.best);
 if (![10, 20, 50].includes(state.maxNumber)) {
@@ -126,6 +139,7 @@ function handleVisibilityChange() {
 }
 
 function makeQuestion() {
+  if (!state.mode) return;
   const useAdd = Math.random() > 0.45;
   let a = randInt(0, state.maxNumber);
   let b = randInt(0, state.maxNumber);
@@ -154,6 +168,86 @@ function makeQuestion() {
   feedbackEl.className = "feedback";
 
   renderChoices(answer);
+}
+
+function updateTimerDisplay() {
+  timerEl.textContent = `${state.timeRemaining}s`;
+}
+
+function stopTimeTrialTimer() {
+  if (!timeTrialTimerId) return;
+  window.clearInterval(timeTrialTimerId);
+  timeTrialTimerId = 0;
+}
+
+function disableAnswerButtons() {
+  answersEl.querySelectorAll("button").forEach((btn) => {
+    btn.disabled = true;
+  });
+}
+
+function showStartMenu(messageText) {
+  stopTimeTrialTimer();
+  state.mode = null;
+  state.locked = true;
+  quitToMenuBtn.hidden = true;
+  gameAreaEl.hidden = true;
+  startMenuEl.hidden = false;
+  if (messageText) {
+    startMessageEl.textContent = messageText;
+  } else {
+    startMessageEl.textContent = "How do you want to play?";
+  }
+  subtitleEl.textContent = "Choose a mode to start!";
+}
+
+function startTimeTrialTimer() {
+  stopTimeTrialTimer();
+  state.timeRemaining = 60;
+  state.timeTrialCompletedCards = 0;
+  state.timeTrialBestStreak = 0;
+  updateTimerDisplay();
+  timerStatEl.hidden = false;
+
+  timeTrialTimerId = window.setInterval(() => {
+    state.timeRemaining -= 1;
+    updateTimerDisplay();
+    if (state.timeRemaining > 0) return;
+
+    stopTimeTrialTimer();
+    state.locked = true;
+    disableAnswerButtons();
+    feedbackEl.textContent = "Time's up!";
+    feedbackEl.className = "feedback";
+    showStartMenu(
+      `Time Trial complete. Cards: ${state.timeTrialCompletedCards} | Best streak: ${state.timeTrialBestStreak}`,
+    );
+  }, 1000);
+}
+
+function startMode(mode) {
+  state.mode = mode;
+  state.streak = 0;
+  state.locked = false;
+  updateStats();
+  closeSettingsMenu();
+  quitToMenuBtn.hidden = false;
+  startMenuEl.hidden = true;
+  gameAreaEl.hidden = false;
+
+  if (mode === "time-trial") {
+    subtitleEl.textContent = "Time Trial: answer as many as you can in 60 seconds!";
+    startTimeTrialTimer();
+  } else {
+    subtitleEl.textContent = "Infinite Mode: keep going as long as you like!";
+    stopTimeTrialTimer();
+    timerStatEl.hidden = true;
+  }
+
+  feedbackEl.textContent = "Tap your answer";
+  feedbackEl.className = "feedback";
+  startBackgroundMusic();
+  showNextCard();
 }
 
 function showNextCard() {
@@ -377,11 +471,15 @@ function updateStats() {
 
 function onAnswer(button, value) {
   startBackgroundMusic();
-  if (state.locked) return;
+  if (state.locked || !state.mode) return;
 
   if (value === state.answer) {
     state.locked = true;
     state.streak += 1;
+    if (state.mode === "time-trial") {
+      state.timeTrialCompletedCards += 1;
+      state.timeTrialBestStreak = Math.max(state.timeTrialBestStreak, state.streak);
+    }
     state.best = Math.max(state.best, state.streak);
     localStorage.setItem("bestStreak", String(state.best));
     updateStats();
@@ -406,8 +504,14 @@ function onAnswer(button, value) {
 }
 
 newCardBtn.addEventListener("click", () => {
+  if (!state.mode) return;
   startBackgroundMusic();
   showNextCard();
+});
+
+quitToMenuBtn.addEventListener("click", () => {
+  if (!state.mode) return;
+  showStartMenu(`You left the game. Last streak: ${state.streak}`);
 });
 
 settingsBtnEl.addEventListener("click", () => {
@@ -423,7 +527,9 @@ rangeSelectEl.addEventListener("change", () => {
   if (![10, 20, 50].includes(nextMax)) return;
   state.maxNumber = nextMax;
   localStorage.setItem("maxNumber", String(state.maxNumber));
-  showNextCard();
+  if (state.mode) {
+    showNextCard();
+  }
 });
 
 soundToggleEl.addEventListener("change", () => {
@@ -467,10 +573,18 @@ document.addEventListener("keydown", (event) => {
 
 document.addEventListener("visibilitychange", handleVisibilityChange);
 
+modeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const mode = button.dataset.mode;
+    if (mode !== "time-trial" && mode !== "infinite") return;
+    startMode(mode);
+  });
+});
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").catch(() => {});
   });
 }
 
-makeQuestion();
+showStartMenu();

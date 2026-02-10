@@ -20,6 +20,10 @@
     <main class="app" aria-live="polite">
       <header class="top">
         <div class="header-row">
+          <button id="quitToMenu" class="back-btn" type="button" hidden>
+            <span aria-hidden="true">←</span>
+            <span>Main Menu</span>
+          </button>
           <h1>Math Fun Cards</h1>
           <div class="settings" id="settingsWrap">
             <button
@@ -57,26 +61,44 @@
             </div>
           </div>
         </div>
-        <p class="subtitle">Tap the right answer!</p>
+        <p id="subtitle" class="subtitle">Choose a mode to start!</p>
       </header>
 
-      <section class="card" aria-label="Flashcard">
-        <p id="emoji" class="emoji" aria-hidden="true">🧸</p>
-        <p id="question" class="question">1 + 1 = ?</p>
-        <div id="answers" class="answers" role="group" aria-label="Answer choices"></div>
-      </section>
-
-      <section class="feedback-wrap">
-        <p id="feedback" class="feedback">Let’s play!</p>
-      </section>
-
-      <footer class="bottom">
-        <div class="stats">
-          <span>⭐ Streak: <strong id="streak">0</strong></span>
-          <span>🏆 Best: <strong id="best">0</strong></span>
+      <section id="startMenu" class="start-menu" aria-label="Game modes">
+        <h2>Pick a play mode</h2>
+        <p id="startMessage" class="start-message">How do you want to play?</p>
+        <div class="mode-actions" role="group" aria-label="Play modes">
+          <button class="mode-btn" type="button" data-mode="time-trial">
+            <span class="mode-icon" aria-hidden="true">⏱️</span>
+            <span>Time Trial</span>
+          </button>
+          <button class="mode-btn" type="button" data-mode="infinite">
+            <span class="mode-icon" aria-hidden="true">♾️</span>
+            <span>Infinite</span>
+          </button>
         </div>
-        <button id="newCard" class="btn" type="button">Next Card</button>
-      </footer>
+      </section>
+
+      <div id="gameArea" hidden>
+        <section class="card" aria-label="Flashcard">
+          <p id="emoji" class="emoji" aria-hidden="true">🧸</p>
+          <p id="question" class="question">1 + 1 = ?</p>
+          <div id="answers" class="answers" role="group" aria-label="Answer choices"></div>
+        </section>
+
+        <section class="feedback-wrap">
+          <p id="feedback" class="feedback">Let’s play!</p>
+        </section>
+
+        <footer class="bottom">
+          <div class="stats">
+            <span>⭐ Streak: <strong id="streak">0</strong></span>
+            <span>🏆 Best: <strong id="best">0</strong></span>
+            <span id="timerStat" hidden>⏱️ Time: <strong id="timer">60s</strong></span>
+          </div>
+          <button id="newCard" class="btn" type="button">Next Card</button>
+        </footer>
+      </div>
     </main>
 
     <script src="app.js" defer></script>

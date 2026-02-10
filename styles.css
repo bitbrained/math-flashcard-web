@@ -48,6 +48,7 @@ body {
   align-items: center;
   gap: 12px;
   position: relative;
+  min-height: 48px;
 }
 
 h1 {
@@ -58,6 +59,29 @@ h1 {
 .subtitle {
   margin: 6px 0 0;
   font-size: 1rem;
+}
+
+.back-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--ink);
+  box-shadow: var(--soft-shadow);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.back-btn[hidden] {
+  display: none;
 }
 
 .settings {
@@ -177,6 +201,52 @@ h1 {
   opacity: 0.4;
 }
 
+.start-menu {
+  background: #ffffff;
+  border-radius: var(--round);
+  box-shadow: var(--soft-shadow);
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.start-menu h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 4vw, 1.8rem);
+}
+
+.start-message {
+  margin: 8px 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.mode-actions {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.mode-btn {
+  border: 0;
+  border-radius: 14px;
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #fff5e8;
+  color: var(--ink);
+  box-shadow: var(--soft-shadow);
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mode-icon {
+  font-size: 1.2em;
+  line-height: 1;
+}
+
 .card-exit {
   animation: card-exit 280ms cubic-bezier(0.34, 0.96, 0.58, 1) both;
 }
@@ -247,6 +317,11 @@ h1 {
   color: var(--ink);
 }
 
+.answer-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
 .answer-btn:active,
 .btn:active {
   transform: scale(0.98);
@@ -298,10 +373,20 @@ h1 {
   gap: 12px;
 }
 
+#gameArea {
+  display: grid;
+  gap: 14px;
+}
+
+#gameArea[hidden] {
+  display: none;
+}
+
 .stats {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
   font-size: 1rem;
   font-weight: 700;
 }
@@ -317,6 +402,7 @@ h1 {
     grid-template-columns: 1fr 1fr;
   }
 
+  .back-btn,
   .settings {
     position: static;
     transform: none;
