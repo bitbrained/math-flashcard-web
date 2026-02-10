@@ -57,6 +57,7 @@ let confettiLayerEl;
 let confettiParticles = [];
 let confettiRafId = 0;
 let confettiLastTs = 0;
+let resumeMusicOnForeground = false;
 
 bestEl.textContent = String(state.best);
 if (![10, 20, 50].includes(state.maxNumber)) {
@@ -109,6 +110,19 @@ function startBackgroundMusic() {
 function pauseBackgroundMusic() {
   if (!backgroundMusicEl) return;
   backgroundMusicEl.pause();
+}
+
+function handleVisibilityChange() {
+  if (document.hidden) {
+    resumeMusicOnForeground = Boolean(backgroundMusicEl && !backgroundMusicEl.paused);
+    pauseBackgroundMusic();
+    return;
+  }
+
+  if (resumeMusicOnForeground && state.soundEnabled) {
+    startBackgroundMusic();
+  }
+  resumeMusicOnForeground = false;
 }
 
 function makeQuestion() {
@@ -450,6 +464,8 @@ document.addEventListener("keydown", (event) => {
     closeSettingsMenu();
   }
 });
+
+document.addEventListener("visibilitychange", handleVisibilityChange);
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
