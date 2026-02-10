@@ -34,6 +34,7 @@ const incorrectTonePatterns = [
 
 const BACKGROUND_MUSIC_SRC = "./audio/counting-cloud-breeze.mp3";
 const CARD_TRANSITION_MS = 280;
+const CONFETTI_COLORS = ["#ff8a5b", "#ffcc70", "#4dd4ac", "#57a6ff", "#ff6ea9", "#8b7bff"];
 
 const state = {
   a: 1,
@@ -52,6 +53,10 @@ let audioCtx;
 let musicStarted = false;
 let backgroundMusicEl;
 let cardTransitionInProgress = false;
+let confettiLayerEl;
+let confettiParticles = [];
+let confettiRafId = 0;
+let confettiLastTs = 0;
 
 bestEl.textContent = String(state.best);
 if (![10, 20, 50].includes(state.maxNumber)) {
@@ -164,6 +169,117 @@ function showNextCard() {
   }, CARD_TRANSITION_MS);
 }
 
+function getConfettiLayer() {
+  if (!confettiLayerEl) {
+    confettiLayerEl = document.createElement("div");
+    confettiLayerEl.className = "confetti-layer";
+    document.body.appendChild(confettiLayerEl);
+  }
+  return confettiLayerEl;
+}
+
+function tickConfetti(timestamp) {
+  if (!confettiLastTs) {
+    confettiLastTs = timestamp;
+  }
+  const dt = Math.min((timestamp - confettiLastTs) / 1000, 0.034);
+  confettiLastTs = timestamp;
+
+  for (let i = confettiParticles.length - 1; i >= 0; i -= 1) {
+    const particle = confettiParticles[i];
+    particle.life += dt;
+    const progress = particle.life / particle.ttl;
+
+    particle.vy += particle.gravity * dt;
+    particle.vx += particle.wind * dt;
+    particle.vx *= particle.drag;
+    particle.vy *= particle.drag;
+
+    particle.x += particle.vx * dt;
+    particle.y += particle.vy * dt;
+    particle.rot += particle.vrot * dt;
+
+    const fadeIn = Math.min(progress / 0.1, 1);
+    const fadeOut = progress > 0.75 ? Math.max(0, 1 - (progress - 0.75) / 0.25) : 1;
+    particle.el.style.opacity = String(Math.min(fadeIn, fadeOut));
+    particle.el.style.transform = `translate(${particle.x.toFixed(2)}px, ${particle.y.toFixed(2)}px) rotate(${particle.rot.toFixed(1)}deg)`;
+
+    if (progress >= 1 || particle.y > window.innerHeight + 64) {
+      particle.el.remove();
+      confettiParticles.splice(i, 1);
+    }
+  }
+
+  if (confettiParticles.length === 0) {
+    confettiRafId = 0;
+    confettiLastTs = 0;
+    return;
+  }
+
+  confettiRafId = window.requestAnimationFrame(tickConfetti);
+}
+
+function startConfettiLoop() {
+  if (confettiRafId) return;
+  confettiRafId = window.requestAnimationFrame(tickConfetti);
+}
+
+function launchConfetti(originEl) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const layer = getConfettiLayer();
+  const originRect =
+    originEl?.getBoundingClientRect() ||
+    (cardEl ? cardEl.getBoundingClientRect() : { left: window.innerWidth / 2, top: 160, width: 0 });
+  const startX = originRect.left + originRect.width / 2;
+  const startY = originRect.top + originRect.height * 0.35;
+  const pieces = 44;
+
+  for (let i = 0; i < pieces; i += 1) {
+    const piece = document.createElement("span");
+    const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.3;
+    const speed = randInt(280, 620);
+    const vx = Math.cos(angle) * speed + randInt(-45, 45);
+    const vy = Math.sin(angle) * speed;
+    const width = randInt(5, 11);
+    const height = randInt(7, 16);
+    const roundness = randInt(2, 9);
+    const ttl = 1.15 + Math.random() * 0.85;
+    const gravity = randInt(820, 1120);
+    const wind = randInt(-18, 18);
+    const drag = 0.986 + Math.random() * 0.008;
+    const rot = randInt(0, 360);
+    const vrot = randInt(-980, 980);
+
+    piece.className = "confetti-piece";
+    piece.style.left = "0";
+    piece.style.top = "0";
+    piece.style.width = `${width}px`;
+    piece.style.height = `${height}px`;
+    piece.style.borderRadius = `${roundness}px`;
+    piece.style.backgroundColor = pick(CONFETTI_COLORS);
+    piece.style.opacity = "0";
+    piece.style.transform = `translate(${startX.toFixed(2)}px, ${startY.toFixed(2)}px) rotate(${rot}deg)`;
+    layer.appendChild(piece);
+
+    confettiParticles.push({
+      el: piece,
+      x: startX,
+      y: startY,
+      vx,
+      vy,
+      gravity,
+      wind,
+      drag,
+      rot,
+      vrot,
+      life: Math.random() * 0.05,
+      ttl,
+    });
+  }
+
+  startConfettiLoop();
+}
+
 function renderChoices(correct) {
   const options = new Set([correct]);
   while (options.size < 4) {
@@ -260,6 +376,7 @@ function onAnswer(button, value) {
     feedbackEl.textContent = feedbackText;
     feedbackEl.className = "feedback good";
     playToneSequence("good");
+    launchConfetti(button);
     speak(pick(correctVoiceLines));
     setTimeout(showNextCard, 700);
   } else {
