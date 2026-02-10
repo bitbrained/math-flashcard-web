@@ -7,6 +7,10 @@ const emojiEl = document.getElementById("emoji");
 const subtitleEl = document.getElementById("subtitle");
 const startMenuEl = document.getElementById("startMenu");
 const startMessageEl = document.getElementById("startMessage");
+const modeActionsEl = document.getElementById("modeActions");
+const durationActionsEl = document.getElementById("durationActions");
+const durationButtons = document.querySelectorAll(".duration-btn");
+const durationBackBtn = document.getElementById("durationBackBtn");
 const modeButtons = document.querySelectorAll(".mode-btn");
 const gameAreaEl = document.getElementById("gameArea");
 const cardEl = document.querySelector(".card");
@@ -56,6 +60,7 @@ const state = {
   voiceEnabled: localStorage.getItem("voiceEnabled") !== "false",
   mode: null,
   timeRemaining: 0,
+  timeTrialDuration: 60,
   timeTrialCompletedCards: 0,
   timeTrialBestStreak: 0,
   locked: false,
@@ -71,6 +76,7 @@ let confettiRafId = 0;
 let confettiLastTs = 0;
 let resumeMusicOnForeground = false;
 let timeTrialTimerId = 0;
+let startMenuUnlockTimeoutId = 0;
 
 bestEl.textContent = String(state.best);
 if (![10, 20, 50].includes(state.maxNumber)) {
@@ -186,11 +192,27 @@ function disableAnswerButtons() {
   });
 }
 
-function showStartMenu(messageText) {
+function setStartMenuControlsEnabled(enabled) {
+  modeButtons.forEach((button) => {
+    button.disabled = !enabled;
+  });
+  durationButtons.forEach((button) => {
+    button.disabled = !enabled;
+  });
+  durationBackBtn.disabled = !enabled;
+}
+
+function showStartMenu(messageText, controlsDelayMs = 0) {
+  if (startMenuUnlockTimeoutId) {
+    window.clearTimeout(startMenuUnlockTimeoutId);
+    startMenuUnlockTimeoutId = 0;
+  }
   stopTimeTrialTimer();
   state.mode = null;
   state.locked = true;
   quitToMenuBtn.hidden = true;
+  modeActionsEl.hidden = false;
+  durationActionsEl.hidden = true;
   gameAreaEl.hidden = true;
   startMenuEl.hidden = false;
   if (messageText) {
@@ -199,11 +221,22 @@ function showStartMenu(messageText) {
     startMessageEl.textContent = "How do you want to play?";
   }
   subtitleEl.textContent = "Choose a mode to start!";
+
+  if (controlsDelayMs > 0) {
+    setStartMenuControlsEnabled(false);
+    startMenuUnlockTimeoutId = window.setTimeout(() => {
+      setStartMenuControlsEnabled(true);
+      startMenuUnlockTimeoutId = 0;
+    }, controlsDelayMs);
+    return;
+  }
+
+  setStartMenuControlsEnabled(true);
 }
 
 function startTimeTrialTimer() {
   stopTimeTrialTimer();
-  state.timeRemaining = 60;
+  state.timeRemaining = state.timeTrialDuration;
   state.timeTrialCompletedCards = 0;
   state.timeTrialBestStreak = 0;
   updateTimerDisplay();
@@ -221,6 +254,7 @@ function startTimeTrialTimer() {
     feedbackEl.className = "feedback";
     showStartMenu(
       `Time Trial complete. Cards: ${state.timeTrialCompletedCards} | Best streak: ${state.timeTrialBestStreak}`,
+      1200,
     );
   }, 1000);
 }
@@ -236,7 +270,7 @@ function startMode(mode) {
   gameAreaEl.hidden = false;
 
   if (mode === "time-trial") {
-    subtitleEl.textContent = "Time Trial: answer as many as you can in 60 seconds!";
+    subtitleEl.textContent = `Time Trial: answer as many as you can in ${state.timeTrialDuration} seconds!`;
     startTimeTrialTimer();
   } else {
     subtitleEl.textContent = "Infinite Mode: keep going as long as you like!";
@@ -248,6 +282,18 @@ function startMode(mode) {
   feedbackEl.className = "feedback";
   startBackgroundMusic();
   showNextCard();
+}
+
+function showTimeTrialDurationChooser() {
+  startMessageEl.textContent = "Choose your time limit";
+  modeActionsEl.hidden = true;
+  durationActionsEl.hidden = false;
+}
+
+function showModeChooser() {
+  startMessageEl.textContent = "How do you want to play?";
+  modeActionsEl.hidden = false;
+  durationActionsEl.hidden = true;
 }
 
 function showNextCard() {
@@ -577,8 +623,25 @@ modeButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const mode = button.dataset.mode;
     if (mode !== "time-trial" && mode !== "infinite") return;
+    if (mode === "time-trial") {
+      showTimeTrialDurationChooser();
+      return;
+    }
     startMode(mode);
   });
+});
+
+durationButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const seconds = Number(button.dataset.seconds);
+    if (![15, 30, 60].includes(seconds)) return;
+    state.timeTrialDuration = seconds;
+    startMode("time-trial");
+  });
+});
+
+durationBackBtn.addEventListener("click", () => {
+  showModeChooser();
 });
 
 if ("serviceWorker" in navigator) {

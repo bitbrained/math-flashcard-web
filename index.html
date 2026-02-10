@@ -67,7 +67,7 @@
       <section id="startMenu" class="start-menu" aria-label="Game modes">
         <h2>Pick a play mode</h2>
         <p id="startMessage" class="start-message">How do you want to play?</p>
-        <div class="mode-actions" role="group" aria-label="Play modes">
+        <div id="modeActions" class="mode-actions" role="group" aria-label="Play modes">
           <button class="mode-btn" type="button" data-mode="time-trial">
             <span class="mode-icon" aria-hidden="true">⏱️</span>
             <span>Time Trial</span>
@@ -76,6 +76,12 @@
             <span class="mode-icon" aria-hidden="true">♾️</span>
             <span>Infinite</span>
           </button>
+        </div>
+        <div id="durationActions" class="duration-actions" role="group" aria-label="Time trial duration" hidden>
+          <button class="duration-btn" type="button" data-seconds="15">15 seconds</button>
+          <button class="duration-btn" type="button" data-seconds="30">30 seconds</button>
+          <button class="duration-btn" type="button" data-seconds="60">60 seconds</button>
+          <button id="durationBackBtn" class="duration-back-btn" type="button">Back</button>
         </div>
       </section>
 

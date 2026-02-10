@@ -226,6 +226,20 @@ h1 {
   gap: 10px;
 }
 
+.mode-actions[hidden] {
+  display: none;
+}
+
+.duration-actions {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.duration-actions[hidden] {
+  display: none;
+}
+
 .mode-btn {
   border: 0;
   border-radius: 14px;
@@ -240,6 +254,23 @@ h1 {
   font-size: 1.1rem;
   font-weight: 800;
   cursor: pointer;
+}
+
+.duration-btn,
+.duration-back-btn {
+  border: 0;
+  border-radius: 14px;
+  min-height: 50px;
+  background: #fff5e8;
+  color: var(--ink);
+  box-shadow: var(--soft-shadow);
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.duration-back-btn {
+  background: #ffffff;
 }
 
 .mode-icon {
