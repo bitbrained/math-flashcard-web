@@ -26,6 +26,9 @@ const rangeSelectEl = document.getElementById("rangeSelect");
 const soundToggleEl = document.getElementById("soundToggle");
 const voiceToggleEl = document.getElementById("voiceToggle");
 const resetBestBtnEl = document.getElementById("resetBestBtn");
+const updateBannerEl = document.getElementById("updateBanner");
+const updateNowBtnEl = document.getElementById("updateNowBtn");
+const updateLaterBtnEl = document.getElementById("updateLaterBtn");
 
 const friendlyEmojis = ["🧸", "🚂", "🐣", "🦄", "🌈", "🍎", "🦋", "🎈"];
 const praise = ["Great job!", "Awesome!", "You did it!", "Super!", "Nice work!"];
@@ -79,6 +82,8 @@ let confettiLastTs = 0;
 let resumeMusicOnForeground = false;
 let timeTrialTimerId = 0;
 let startMenuUnlockTimeoutId = 0;
+let waitingServiceWorker;
+let reloadOnControllerChange = false;
 
 bestEl.textContent = String(state.best);
 if (![10, 20, 50].includes(state.maxNumber)) {
@@ -144,6 +149,55 @@ function handleVisibilityChange() {
     startBackgroundMusic();
   }
   resumeMusicOnForeground = false;
+}
+
+function showUpdateBanner() {
+  if (!updateBannerEl || !updateNowBtnEl) return;
+  updateNowBtnEl.disabled = false;
+  updateNowBtnEl.textContent = "Update now";
+  updateBannerEl.hidden = false;
+}
+
+function hideUpdateBanner() {
+  if (!updateBannerEl || !updateNowBtnEl) return;
+  updateBannerEl.hidden = true;
+  updateNowBtnEl.disabled = false;
+  updateNowBtnEl.textContent = "Update now";
+}
+
+function handleWaitingServiceWorker(worker) {
+  if (!worker) return;
+  waitingServiceWorker = worker;
+  showUpdateBanner();
+}
+
+function applyServiceWorkerUpdate() {
+  if (!waitingServiceWorker || !updateNowBtnEl) return;
+  reloadOnControllerChange = true;
+  updateNowBtnEl.disabled = true;
+  updateNowBtnEl.textContent = "Updating...";
+  waitingServiceWorker.postMessage({ type: "SKIP_WAITING" });
+}
+
+async function registerServiceWorker() {
+  try {
+    const registration = await navigator.serviceWorker.register("./sw.js");
+
+    if (registration.waiting) {
+      handleWaitingServiceWorker(registration.waiting);
+    }
+
+    registration.addEventListener("updatefound", () => {
+      const installingWorker = registration.installing;
+      if (!installingWorker) return;
+
+      installingWorker.addEventListener("statechange", () => {
+        if (installingWorker.state === "installed" && navigator.serviceWorker.controller) {
+          handleWaitingServiceWorker(installingWorker);
+        }
+      });
+    });
+  } catch (_) {}
 }
 
 function makeQuestion() {
@@ -651,8 +705,21 @@ durationBackBtn.addEventListener("click", () => {
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
+    registerServiceWorker();
   });
+
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!reloadOnControllerChange) return;
+    window.location.reload();
+  });
+}
+
+if (updateNowBtnEl) {
+  updateNowBtnEl.addEventListener("click", applyServiceWorkerUpdate);
+}
+
+if (updateLaterBtnEl) {
+  updateLaterBtnEl.addEventListener("click", hideUpdateBanner);
 }
 
 showStartMenu();
