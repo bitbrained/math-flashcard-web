@@ -3,6 +3,7 @@ const answersEl = document.getElementById("answers");
 const feedbackEl = document.getElementById("feedback");
 const streakEl = document.getElementById("streak");
 const bestEl = document.getElementById("best");
+const completedCardsEl = document.getElementById("completedCards");
 const emojiEl = document.getElementById("emoji");
 const subtitleEl = document.getElementById("subtitle");
 const startMenuEl = document.getElementById("startMenu");
@@ -59,6 +60,7 @@ const state = {
   soundEnabled: localStorage.getItem("soundEnabled") !== "false",
   voiceEnabled: localStorage.getItem("voiceEnabled") !== "false",
   mode: null,
+  sessionCompletedCards: 0,
   timeRemaining: 0,
   timeTrialDuration: 60,
   timeTrialCompletedCards: 0,
@@ -262,6 +264,7 @@ function startTimeTrialTimer() {
 function startMode(mode) {
   state.mode = mode;
   state.streak = 0;
+  state.sessionCompletedCards = 0;
   state.locked = false;
   updateStats();
   closeSettingsMenu();
@@ -513,6 +516,7 @@ function playToneSequence(type) {
 function updateStats() {
   streakEl.textContent = String(state.streak);
   bestEl.textContent = String(state.best);
+  completedCardsEl.textContent = String(state.sessionCompletedCards);
 }
 
 function onAnswer(button, value) {
@@ -522,6 +526,7 @@ function onAnswer(button, value) {
   if (value === state.answer) {
     state.locked = true;
     state.streak += 1;
+    state.sessionCompletedCards += 1;
     if (state.mode === "time-trial") {
       state.timeTrialCompletedCards += 1;
       state.timeTrialBestStreak = Math.max(state.timeTrialBestStreak, state.streak);
