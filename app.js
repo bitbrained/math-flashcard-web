@@ -24,6 +24,7 @@ const settingsBtnEl = document.getElementById("settingsBtn");
 const settingsMenuEl = document.getElementById("settingsMenu");
 const rangeSelectEl = document.getElementById("rangeSelect");
 const soundToggleEl = document.getElementById("soundToggle");
+const musicToggleEl = document.getElementById("musicToggle");
 const voiceToggleEl = document.getElementById("voiceToggle");
 const resetBestBtnEl = document.getElementById("resetBestBtn");
 const updateBannerEl = document.getElementById("updateBanner");
@@ -61,6 +62,10 @@ const state = {
   best: Number(localStorage.getItem("bestStreak") || 0),
   maxNumber: Number(localStorage.getItem("maxNumber") || 10),
   soundEnabled: localStorage.getItem("soundEnabled") !== "false",
+  musicEnabled:
+    localStorage.getItem("musicEnabled") === null
+      ? localStorage.getItem("soundEnabled") !== "false"
+      : localStorage.getItem("musicEnabled") !== "false",
   voiceEnabled: localStorage.getItem("voiceEnabled") !== "false",
   mode: null,
   sessionCompletedCards: 0,
@@ -91,6 +96,7 @@ if (![10, 20, 50].includes(state.maxNumber)) {
 }
 rangeSelectEl.value = String(state.maxNumber);
 soundToggleEl.checked = state.soundEnabled;
+musicToggleEl.checked = state.musicEnabled;
 voiceToggleEl.checked = state.voiceEnabled;
 
 function closeSettingsMenu() {
@@ -122,7 +128,7 @@ function getBackgroundMusic() {
 }
 
 function startBackgroundMusic() {
-  if (!state.soundEnabled) return;
+  if (!state.musicEnabled) return;
   const music = getBackgroundMusic();
   if (!music.paused) return;
   music
@@ -145,7 +151,7 @@ function handleVisibilityChange() {
     return;
   }
 
-  if (resumeMusicOnForeground && state.soundEnabled) {
+  if (resumeMusicOnForeground && state.musicEnabled) {
     startBackgroundMusic();
   }
   resumeMusicOnForeground = false;
@@ -648,11 +654,16 @@ rangeSelectEl.addEventListener("change", () => {
 soundToggleEl.addEventListener("change", () => {
   state.soundEnabled = soundToggleEl.checked;
   localStorage.setItem("soundEnabled", String(state.soundEnabled));
-  if (!state.soundEnabled) {
+});
+
+musicToggleEl.addEventListener("change", () => {
+  state.musicEnabled = musicToggleEl.checked;
+  localStorage.setItem("musicEnabled", String(state.musicEnabled));
+  if (!state.musicEnabled) {
     pauseBackgroundMusic();
-  } else if (musicStarted) {
-    startBackgroundMusic();
+    return;
   }
+  startBackgroundMusic();
 });
 
 voiceToggleEl.addEventListener("change", () => {
