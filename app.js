@@ -324,7 +324,6 @@ function startMode(mode) {
   closeSettingsMenu();
   quitToMenuBtn.hidden = false;
   startMenuEl.hidden = true;
-  gameAreaEl.hidden = false;
 
   if (mode === "time-trial") {
     subtitleEl.textContent = `Time Trial: answer as many as you can in ${state.timeTrialDuration} seconds!`;
@@ -338,7 +337,8 @@ function startMode(mode) {
   feedbackEl.textContent = "Tap your answer";
   feedbackEl.className = "feedback";
   startBackgroundMusic();
-  showNextCard();
+  showNextCard({ immediate: true });
+  gameAreaEl.hidden = false;
 }
 
 function showTimeTrialDurationChooser() {
@@ -353,8 +353,16 @@ function showModeChooser() {
   durationActionsEl.hidden = true;
 }
 
-function showNextCard() {
+function showNextCard(options = {}) {
+  const immediate = options.immediate === true;
   if (!cardEl) {
+    makeQuestion();
+    return;
+  }
+  if (immediate) {
+    cardTransitionInProgress = false;
+    cardEl.classList.remove("card-exit");
+    cardEl.classList.remove("card-enter");
     makeQuestion();
     return;
   }

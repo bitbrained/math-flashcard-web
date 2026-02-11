@@ -1,4 +1,4 @@
-# Math Fun Cards
+# Math Flash Cards
 
 Single-page preschool math flashcard web app optimized for touch and iOS Home Screen install.
 

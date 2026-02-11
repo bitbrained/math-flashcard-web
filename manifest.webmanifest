@@ -1,6 +1,6 @@
 {
-  "name": "Math Fun Cards",
-  "short_name": "Math Cards",
+  "name": "Math Flash Cards",
+  "short_name": "Math Flash Cards",
   "description": "Simple preschool math flashcards with large touch targets.",
   "start_url": "./",
   "display": "standalone",
