@@ -1,4 +1,4 @@
-const CACHE_NAME = "math-fun-cards-v4";
+const CACHE_NAME = "math-fun-cards-v5";
 const APP_SHELL = [
   "./",
   "./index.html",
